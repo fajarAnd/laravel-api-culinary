@@ -48,12 +48,12 @@ jobs:
       - name: Setup environment
         run: |
           cp .env.example .env
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=5432" >> .env
-          echo "DB_DATABASE=culinary_test" >> .env
-          echo "DB_USERNAME=culinary_user" >> .env
-          echo "DB_PASSWORD=secret" >> .env
-          echo "CACHE_STORE=array" >> .env
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_PORT=.*/DB_PORT=5432/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=culinary_test/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=culinary_user/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
+          sed -i 's/^CACHE_STORE=.*/CACHE_STORE=array/' .env
           php artisan key:generate
           php artisan passport:keys --force
 
