@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'two_factor' => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
         ]);
+
+        $middleware->appendToGroup('api', [
+            \App\Http\Middleware\LogApiRequest::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (ValidationException $e) {
