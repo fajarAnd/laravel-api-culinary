@@ -59,11 +59,4 @@
       0 => 'PragmaRX\\Google2FALaravel\\ServiceProvider',
     ),
   ),
-  'spatie/laravel-permission' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\Permission\\PermissionServiceProvider',
-    ),
-  ),
 );
