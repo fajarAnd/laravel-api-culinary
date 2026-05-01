@@ -12,6 +12,7 @@ tmp
 /public/hot
 /public/storage
 /storage/*.key
+/storage/oauth-*.key
 /vendor
 .env
 .env.backup
