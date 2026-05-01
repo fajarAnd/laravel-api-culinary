@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\TwoFactorController;
+use App\Http\Controllers\Api\Telegram\TelegramController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
+
+// Telegram webhook — no auth, excluded from logging middleware
+Route::post('/telegram/webhook', [TelegramController::class, 'webhook']);
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
