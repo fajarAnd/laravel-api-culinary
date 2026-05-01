@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\RequestLogController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\TwoFactorController;
+use App\Http\Controllers\Api\Restaurant\RestaurantController;
 use App\Http\Controllers\Api\Telegram\TelegramController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,5 +33,21 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:api', 'two_factor'])->group(function () {
-    // protected routes go here
+    // Restaurants
+    Route::prefix('restaurants')->group(function () {
+        Route::get('/', [RestaurantController::class, 'index']);
+        Route::get('/nearby', [RestaurantController::class, 'nearby']);
+        Route::get('/{id}', [RestaurantController::class, 'show']);
+        Route::get('/{id}/menu', [RestaurantController::class, 'menu']);
+        Route::get('/{id}/reviews', [RestaurantController::class, 'reviews']);
+    });
+
+    Route::get('/locations', [RestaurantController::class, 'locations']);
+
+    // Admin
+    Route::prefix('admin')->group(function () {
+        Route::get('/request-logs', [RequestLogController::class, 'index']);
+        Route::get('/request-logs/stats', [RequestLogController::class, 'stats']);
+        Route::get('/request-logs/{requestLog}', [RequestLogController::class, 'show']);
+    });
 });
