@@ -17,9 +17,7 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
-if [ ! -d "vendor" ]; then
-    composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-fi
+composer install --no-interaction --prefer-dist --optimize-autoloader
 
 php artisan key:generate --no-interaction 2>/dev/null || true
 php artisan migrate --force --no-interaction

@@ -33,11 +33,18 @@ docker compose up -d
 
 ### Unit Tests
 
+**Docker (recommended):**
 ```bash
+docker compose up -d --wait   # waits until app is fully ready
+docker compose exec app php artisan test
+docker compose exec app php artisan test --testsuite=Unit
+docker compose exec app php artisan test --testsuite=Feature
+```
+
+**Local:**
+```bash
+composer install
 php artisan test
-# or run a specific suite
-php artisan test --testsuite=Unit
-php artisan test --testsuite=Feature
 ```
 
 ### 2FA Flow (step by step)
