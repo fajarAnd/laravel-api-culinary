@@ -16,42 +16,27 @@ REST API for a Telegram culinary bot — restaurant search, menus, and reviews b
 ```bash
 cp .env.example .env
 composer install
-php artisan key:generate
+php artisan migrate --seed
 php artisan passport:keys
-php artisan migrate
-php artisan passport:install --uuids
-php artisan db:seed --class=AdminUserSeeder
+php artisan serve
 ```
 
 ## Docker
 
 ```bash
+cp .env.example .env
 docker compose up -d
-docker compose exec app php artisan migrate
-docker compose exec app php artisan passport:install --uuids
+# app automatically runs migrate, seed, passport:keys, then serves on port 8000
 ```
-
-## Branching Strategy
-
-Trunk-based development — short-lived branches merged directly into `master`.
-
-| Branch | Purpose |
-|--------|---------|
-| `master` | Production-ready, always green CI |
-| `feature/*` | New features, max 1-2 days |
-| `setup/*` | Infrastructure configuration |
-| `hotfix/*` | Urgent fixes directly from master |
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login, returns Bearer token |
-| POST | `/api/auth/logout` | Logout, revokes token |
-| GET | `/api/auth/me` | Get authenticated user |
-| POST | `/api/auth/2fa/setup` | Generate 2FA secret + QR code |
-| POST | `/api/auth/2fa/enable` | Enable 2FA |
-| POST | `/api/auth/2fa/disable` | Disable 2FA |
-| POST | `/api/auth/2fa/verify` | Verify OTP (login step 2) |
-| GET | `/api/health` | Health check |
+Import Postman collection for all endpoints: `postman/collection.json` + `postman/environment.json`.
+
+Set `base_url` in Postman environment to `http://localhost:8000`, then run **Login** to auto-populate `api_token` for authenticated requests.
+
+---
+
+> **Note:**
+> - `.env.example` contains development OAuth secrets. For production, replace with `php artisan passport:install`.
+> - `/api/restaurants/*` endpoints use mock/stub data since Zomato API is unavailable. 
