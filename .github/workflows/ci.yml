@@ -55,6 +55,7 @@ jobs:
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
           sed -i 's/^CACHE_STORE=.*/CACHE_STORE=array/' .env
           php artisan key:generate
+          cp .env .env.testing
           php artisan passport:keys --force
 
       - name: Run migrations
