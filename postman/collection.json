@@ -1,0 +1,385 @@
+{
+    "info": {
+        "name": "Culinary Bot API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": "REST API for Telegram culinary bot - Laravel 12 + Passport + 2FA"
+    },
+    "variable": [
+        { "key": "base_url", "value": "{{base_url}}" }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/register",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"Test User\",\"email\":\"test@example.com\",\"password\":\"password123\",\"password_confirmation\":\"password123\"}",
+                            "options": { "raw": { "language": "json" } }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has access_token', () => pm.expect(pm.response.json().data).to.have.property('access_token'));",
+                                    "const token = pm.response.json().data?.access_token;",
+                                    "if (token) pm.environment.set('api_token', token);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/login",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"test@example.com\",\"password\":\"password123\"}",
+                            "options": { "raw": { "language": "json" } }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has access_token or requires_2fa', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.satisfy(d => d.access_token || d.requires_2fa);",
+                                    "});",
+                                    "const token = pm.response.json().data?.access_token;",
+                                    "if (token) pm.environment.set('api_token', token);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Me",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/auth/me",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has user data', () => pm.expect(pm.response.json().data).to.have.property('email'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/logout",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Success true', () => pm.expect(pm.response.json().success).to.be.true);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2FA - Setup",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/2fa/setup",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has qr_code_url', () => pm.expect(pm.response.json().data).to.have.property('qr_code_url'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2FA - Enable",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/2fa/enable",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"otp\":\"123456\"}",
+                            "options": { "raw": { "language": "json" } }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200 or 422', () => pm.expect(pm.response.code).to.be.oneOf([200, 422]));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has success field', () => pm.expect(pm.response.json()).to.have.property('success'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2FA - Verify",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/api/auth/2fa/verify",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"otp\":\"123456\"}",
+                            "options": { "raw": { "language": "json" } }
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200 or 401', () => pm.expect(pm.response.code).to.be.oneOf([200, 401]));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has success field', () => pm.expect(pm.response.json()).to.have.property('success'));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Restaurants",
+            "item": [
+                {
+                    "name": "Search",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/restaurants?q=sate",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "restaurants"],
+                            "query": [{ "key": "q", "value": "sate" }]
+                        },
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has data array', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+                                    "const first = pm.response.json().data?.[0];",
+                                    "if (first) pm.environment.set('restaurant_id', first.id);"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Detail",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/restaurants/{{restaurant_id}}",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has name', () => pm.expect(pm.response.json().data).to.have.property('name'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Menu",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/restaurants/{{restaurant_id}}/menu",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has data', () => pm.expect(pm.response.json()).to.have.property('data'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Reviews",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/restaurants/{{restaurant_id}}/reviews",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has data array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Nearby",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/restaurants/nearby?lat=-6.2&lng=106.8",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "restaurants", "nearby"],
+                            "query": [
+                                { "key": "lat", "value": "-6.2" },
+                                { "key": "lng", "value": "106.8" }
+                            ]
+                        },
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has data array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Admin - Metadata Logs",
+            "item": [
+                {
+                    "name": "List Logs",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/admin/request-logs",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has meta pagination', () => pm.expect(pm.response.json()).to.have.property('meta'));"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Stats",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/api/admin/request-logs/stats",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{api_token}}" }
+                        ]
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                                    "pm.test('Has total_requests', () => pm.expect(pm.response.json().data).to.have.property('total_requests'));"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
